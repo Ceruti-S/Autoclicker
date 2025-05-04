@@ -14,11 +14,11 @@ public class AutoClicker
             Scanner key = new Scanner(System.in);
             Robot robot = new Robot();
 
-            System.out.println("Intervallo tra i clic (ms) [minimo consigliato: 10ms / consigliato: 100ms]: ");
+            System.out.println("Interval between clicks (ms) [Recommended minimum: 10ms / Recommended: 100ms]:");
             int delay = key.nextInt();
             key.nextLine(); 
 
-            System.out.println("Inserisci 's' + INVIO per AVVIARE, 'f' + INVIO per FERMARE. Ctrl+C per uscire o chiudi il CMD.");
+            System.out.println("Type 's' + ENTER to START, 'f' + ENTER to STOP. Ctrl+C to exit or close the CMD.");
 
             Thread clickThread = null;
             boolean isClicking = false;
@@ -58,7 +58,7 @@ public class AutoClicker
                     });
 
                     clickThread.start();
-                    System.out.println("Autoclicker AVVIATO. Inserisci 'f' + INVIO per fermare.");
+                    System.out.println("Autoclicker STARTED. Press 'f' + ENTER to stop.");
 
                 } 
                 else if (cmd.equalsIgnoreCase("f") && isClicking) 
@@ -73,7 +73,7 @@ public class AutoClicker
 
                     }
 
-                    System.out.println("Autoclicker IN PAUSA. Inserisci 's' + INVIO per riavviare.");
+                    System.out.println("Autoclicker PAUSED. Press 's' + ENTER to restart.");
 
                 }
                 
