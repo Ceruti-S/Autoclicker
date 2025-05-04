@@ -18,3 +18,5 @@ How to use the AutoClicker:
 1) Open the Command Prompt and go to the AutoClicker folder.
 2) Type the command java AutoClicker and press Enter.
 3) Follow the instructions that appear in the Command Prompt.
+
+/!\ Please note: It is possible that the first press of the Enter key may not successfully stop the clicking. If this occurs, try pressing the Enter key quickly and repeatedly until it responds. /!\
