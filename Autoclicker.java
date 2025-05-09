@@ -59,8 +59,8 @@ public class Autoclicker extends JFrame
         delaySpinner = new JSpinner(model);
         ((JSpinner.DefaultEditor) delaySpinner.getEditor()).getTextField().setColumns(5);
 
-        startButton = new JButton("Avvia");
-        stopButton = new JButton("Ferma");
+        startButton = new JButton("Start");
+        stopButton = new JButton("Stop");
         stopButton.setEnabled(false);
 
     }
@@ -73,7 +73,7 @@ public class Autoclicker extends JFrame
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridx = 0;
         gbc.gridy = 0;
-        panel.add(new JLabel("Intervallo tra i clic (ms) [minimo 10ms]:"), gbc);
+        panel.add(new JLabel("Delay between click (ms) [min 10ms]:"), gbc);
 
         gbc.gridx = 1;
         panel.add(delaySpinner, gbc);
