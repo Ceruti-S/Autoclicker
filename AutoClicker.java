@@ -1,92 +1,198 @@
-import java.awt.Robot;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.InputEvent;
-import java.util.Scanner;
 
-public class AutoClicker 
+public class Autoclicker extends JFrame 
 {
 
-    public static void main(String[] args) 
+    private JSpinner delaySpinner;
+    private JButton startButton;
+    private JButton stopButton;
+    private SwingWorker<Void, Void> clickWorker;
+    private Robot robot;
+
+    public Autoclicker() 
     {
-        
+
+        super("Autoclicker");
+        initRobot();
+        initComponents();
+        layoutComponents();
+        attachListeners();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+    }
+
+    private void initRobot() 
+    {
+
         try 
         {
 
-            Scanner key = new Scanner(System.in);
-            Robot robot = new Robot();
+            robot = new Robot();
 
-            System.out.println("Interval between clicks (ms) [Recommended minimum: 10ms / Recommended: 100ms]:");
-            int delay = key.nextInt();
-            key.nextLine(); 
+        } 
+        catch (AWTException e) 
+        {
 
-            System.out.println("Type 's' + ENTER to START, 'f' + ENTER to STOP. Ctrl+C to exit or close the CMD.");
+            JOptionPane.showMessageDialog(this,
+                    "Impossibile inizializzare Robot:\n" + e.getMessage(),
+                    "Errore",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
 
-            Thread clickThread = null;
-            boolean isClicking = false;
+        }
 
-            while (true) 
+    }
+
+    private void initComponents() 
+    {
+
+        SpinnerNumberModel model = new SpinnerNumberModel(100, 10, 10000, 10);
+        delaySpinner = new JSpinner(model);
+        ((JSpinner.DefaultEditor) delaySpinner.getEditor()).getTextField().setColumns(5);
+
+        startButton = new JButton("Avvia");
+        stopButton = new JButton("Ferma");
+        stopButton.setEnabled(false);
+
+    }
+
+    private void layoutComponents() 
+    {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(new JLabel("Intervallo tra i clic (ms) [minimo 10ms]:"), gbc);
+
+        gbc.gridx = 1;
+        panel.add(delaySpinner, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(startButton, gbc);
+
+        gbc.gridx = 1;
+        panel.add(stopButton, gbc);
+
+        getContentPane().add(panel);
+
+    }
+
+    private void attachListeners() 
+    {
+
+        startButton.addActionListener(new ActionListener() 
+        {
+
+            @Override
+            public void actionPerformed(ActionEvent e) 
             {
 
-                
-                String cmd = key.nextLine().trim();
-				cmd = cmd.toLowerCase();
-
-                if (cmd.equalsIgnoreCase("s") && !isClicking) 
-                {
-                    
-                    isClicking = true;
-                    clickThread = new Thread(() -> 
-                    {
-
-                        try 
-                        {
-
-                            while (!Thread.currentThread().isInterrupted()) 
-                            {
-
-                                robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-                                robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-                                Thread.sleep(delay);
-
-                            }
-
-                        } 
-                        catch (InterruptedException e) 
-                        {
-                            
-                        }
-
-                    });
-
-                    clickThread.start();
-                    System.out.println("Autoclicker STARTED. Press 'f' + ENTER to stop.");
-
-                } 
-                else if (cmd.equalsIgnoreCase("f") && isClicking) 
-                {
-                    
-                    isClicking = false;
-                    if (clickThread != null) 
-                    {
-
-                        clickThread.interrupt();
-                        clickThread.join();
-
-                    }
-
-                    System.out.println("Autoclicker PAUSED. Press 's' + ENTER to restart.");
-
-                }
-                
+                startClicking();
 
             }
 
-        } 
-        catch (Exception e) 
+        });
+
+        stopButton.addActionListener(new ActionListener() 
         {
 
-            e.printStackTrace();
+            @Override
+            public void actionPerformed(ActionEvent e) 
+            {
+
+                stopClicking();
+
+            }
+
+        });
+
+        addWindowListener(new WindowAdapter() 
+        {
+
+            @Override
+            public void windowClosing(WindowEvent e) 
+            {
+
+                stopClicking();
+
+            }
+
+        });
+
+    }
+
+    private void startClicking() 
+    {
+        
+        final int delay = (int) delaySpinner.getValue();
+        clickWorker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception 
+            {
+
+                while (!isCancelled())
+                {
+
+                    robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+                    robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+                    Thread.sleep(delay);
+
+                }
+                return null;
+
+            }
+
+        };
+
+        clickWorker.execute();
+        startButton.setEnabled(false);
+        delaySpinner.setEnabled(false);
+        stopButton.setEnabled(true);
+
+    }
+
+    private void stopClicking() 
+    {
+
+        if (clickWorker != null && !clickWorker.isDone()) 
+        {
+
+            clickWorker.cancel(true);
 
         }
+        startButton.setEnabled(true);
+        delaySpinner.setEnabled(true);
+        stopButton.setEnabled(false);
+
+    }
+
+    public static void main(String[] args) 
+    {
+
+        try 
+        {
+
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        } 
+        catch (Exception ignored) 
+        {
+
+        }
+
+        SwingUtilities.invokeLater(() -> new Autoclicker());
 
     }
 
